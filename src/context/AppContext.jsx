@@ -2,7 +2,7 @@ import React, { createContext, useState, useEffect, useContext } from 'react';
 
 const AppContext = createContext();
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = 'https://backendrep-9gdr.onrender.com/api';
 
 export const AppProvider = ({ children }) => {
   const [activeRole, setActiveRole] = useState(() => {

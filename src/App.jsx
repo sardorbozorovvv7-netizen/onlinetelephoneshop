@@ -5,7 +5,7 @@ import ProductCard from './components/ProductCard';
 import CartDrawer from './components/CartDrawer';
 import ManagerDashboard from './components/ManagerDashboard';
 import SuperadminDashboard from './components/SuperadminDashboard';
-import { FaHeart, FaShoppingBag, FaTimes, FaUser, FaPhone, FaLock } from 'react-icons/fa';
+import { FaHeart, FaShoppingBag, FaTimes, FaUser, FaPhone, FaLock, FaTrash } from 'react-icons/fa';
 
 function MainAppContent() {
   const { 
@@ -17,6 +17,8 @@ function MainAppContent() {
     loggedUser,
     registerUser,
     changeRole,
+    toggleLike,
+    addToCart,
     loading 
   } = useApp();
 
@@ -360,12 +362,18 @@ function MainAppContent() {
                       <h4 style={{ fontSize: '0.95rem' }}>{prod.name}</h4>
                       <span style={{ fontSize: '0.85rem', color: '#06b6d4' }}>${prod.saleprice || prod.price}</span>
                     </div>
-                    <button className="btn-primary" style={{ width: 'auto', padding: '0.5rem 0.8rem', fontSize: '0.85rem' }} onClick={() => {
-                      const { addToCart } = useApp();
-                      addToCart(prod.id, 1);
-                      setWishlistOpen(false);
-                      setCartOpen(true);
-                    }}>Savatga</button>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <button className="btn-primary" style={{ width: 'auto', padding: '0.5rem 0.8rem', fontSize: '0.85rem' }} onClick={() => {
+                        addToCart(prod.id, 1);
+                        setWishlistOpen(false);
+                        setCartOpen(true);
+                      }}>Savatga</button>
+                      <button className="action-btn delete" style={{ padding: '0.5rem', borderRadius: 'var(--radius-sm)' }} onClick={() => {
+                        toggleLike(prod.id);
+                      }} title="O'chirish">
+                        <FaTrash />
+                      </button>
+                    </div>
                   </div>
                 ))
               )}
