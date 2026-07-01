@@ -1,0 +1,456 @@
+import React, { createContext, useState, useEffect, useContext } from 'react';
+
+const AppContext = createContext();
+
+const API_BASE = 'http://localhost:5000/api';
+
+export const AppProvider = ({ children }) => {
+  const [activeRole, setActiveRole] = useState(() => {
+    return localStorage.getItem('activeRole') || 'user';
+  });
+  
+  // Custom logged in customer details
+  const [loggedUser, setLoggedUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem('loggedUser');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const [currentUser, setCurrentUser] = useState(null);
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [cart, setCart] = useState([]);
+  const [likes, setLikes] = useState([]); // List of product IDs liked by user
+  const [orders, setOrders] = useState([]);
+  const [managers, setManagers] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Common headers based on role and active login state
+  const getHeaders = () => {
+    let userId = '1';
+    if (activeRole === 'user') {
+      userId = loggedUser ? loggedUser.id.toString() : 'guest';
+    }
+    return {
+      'Content-Type': 'application/json',
+      'x-user-role': activeRole,
+      'x-user-id': userId,
+    };
+  };
+
+  const fetchAuth = async () => {
+    if (activeRole === 'user' && !loggedUser) {
+      setCurrentUser(null);
+      return;
+    }
+    try {
+      const res = await fetch(`${API_BASE}/auth/current`, { headers: getHeaders() });
+      if (res.ok) {
+        const data = await res.json();
+        setCurrentUser(data.user);
+      }
+    } catch (err) {
+      console.error('Error fetching current user:', err);
+    }
+  };
+
+  const fetchProducts = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/products`);
+      if (res.ok) {
+        const data = await res.json();
+        setProducts(data);
+      }
+    } catch (err) {
+      console.error('Error fetching products:', err);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/categories`);
+      if (res.ok) {
+        const data = await res.json();
+        setCategories(data);
+      }
+    } catch (err) {
+      console.error('Error fetching categories:', err);
+    }
+  };
+
+  const fetchCart = async () => {
+    if (activeRole === 'user' && !loggedUser) {
+      setCart([]);
+      return;
+    }
+    try {
+      const res = await fetch(`${API_BASE}/cart`, { headers: getHeaders() });
+      if (res.ok) {
+        const data = await res.json();
+        setCart(data);
+      }
+    } catch (err) {
+      console.error('Error fetching cart:', err);
+    }
+  };
+
+  const fetchLikes = async () => {
+    if (activeRole === 'user' && !loggedUser) {
+      setLikes([]);
+      return;
+    }
+    try {
+      const res = await fetch(`${API_BASE}/likes`, { headers: getHeaders() });
+      if (res.ok) {
+        const data = await res.json();
+        setLikes(data);
+      }
+    } catch (err) {
+      console.error('Error fetching likes:', err);
+    }
+  };
+
+  const fetchOrders = async () => {
+    if (activeRole === 'user' && !loggedUser) {
+      setOrders([]);
+      return;
+    }
+    try {
+      const res = await fetch(`${API_BASE}/orders`, { headers: getHeaders() });
+      if (res.ok) {
+        const data = await res.json();
+        setOrders(data);
+      }
+    } catch (err) {
+      console.error('Error fetching orders:', err);
+    }
+  };
+
+  const fetchAdminData = async () => {
+    if (activeRole === 'superadmin') {
+      try {
+        const [resManagers, resUsers] = await Promise.all([
+          fetch(`${API_BASE}/managers`, { headers: getHeaders() }),
+          fetch(`${API_BASE}/users`, { headers: getHeaders() })
+        ]);
+        if (resManagers.ok) setManagers(await resManagers.json());
+        if (resUsers.ok) setUsers(await resUsers.json());
+      } catch (err) {
+        console.error('Error fetching admin data:', err);
+      }
+    }
+  };
+
+  const refreshAll = async () => {
+    setLoading(true);
+    await Promise.all([
+      fetchAuth(),
+      fetchProducts(),
+      fetchCategories(),
+      fetchCart(),
+      fetchLikes(),
+      fetchOrders(),
+      fetchAdminData()
+    ]);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    localStorage.setItem('activeRole', activeRole);
+    refreshAll();
+  }, [activeRole, loggedUser]);
+
+  const changeRole = (role) => {
+    setActiveRole(role);
+  };
+
+  // Auth Operations
+  const registerUser = async ({ name, surname, phone }) => {
+    try {
+      const res = await fetch(`${API_BASE}/auth/register-user`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, surname, phone }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setLoggedUser(data.user);
+        localStorage.setItem('loggedUser', JSON.stringify(data.user));
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('Error registering user:', err);
+      return false;
+    }
+  };
+
+  const logoutUser = () => {
+    localStorage.removeItem('loggedUser');
+    setLoggedUser(null);
+    setCurrentUser(null);
+    setCart([]);
+    setLikes([]);
+    setOrders([]);
+  };
+
+  // Cart operations
+  const addToCart = async (productId, quantity = 1) => {
+    if (!loggedUser && activeRole === 'user') {
+      return false; // Action requires login
+    }
+    try {
+      const res = await fetch(`${API_BASE}/cart`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({ ProductId: productId, quantity }),
+      });
+      if (res.ok) {
+        await fetchCart();
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('Error adding to cart:', err);
+      return false;
+    }
+  };
+
+  const updateCartQty = async (cartItemId, quantity) => {
+    if (quantity <= 0) {
+      return removeFromCart(cartItemId);
+    }
+    try {
+      const res = await fetch(`${API_BASE}/cart/${cartItemId}`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify({ quantity }),
+      });
+      if (res.ok) {
+        await fetchCart();
+      }
+    } catch (err) {
+      console.error('Error updating cart:', err);
+    }
+  };
+
+  const removeFromCart = async (cartItemId) => {
+    try {
+      const res = await fetch(`${API_BASE}/cart/${cartItemId}`, {
+        method: 'DELETE',
+        headers: getHeaders(),
+      });
+      if (res.ok) {
+        await fetchCart();
+      }
+    } catch (err) {
+      console.error('Error removing from cart:', err);
+    }
+  };
+
+  const checkout = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/orders/checkout`, {
+        method: 'POST',
+        headers: getHeaders(),
+      });
+      if (res.ok) {
+        await Promise.all([fetchCart(), fetchOrders(), fetchProducts()]);
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('Error checkout:', err);
+      return false;
+    }
+  };
+
+  // Likes operations
+  const toggleLike = async (productId) => {
+    if (!loggedUser && activeRole === 'user') {
+      return false; // Action requires login
+    }
+    try {
+      const res = await fetch(`${API_BASE}/products/${productId}/like`, {
+        method: 'POST',
+        headers: getHeaders(),
+      });
+      if (res.ok) {
+        await Promise.all([fetchLikes(), fetchProducts()]);
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('Error toggling like:', err);
+      return false;
+    }
+  };
+
+  // Product CRUD (Manager/Superadmin)
+  const addProduct = async (productData) => {
+    try {
+      const res = await fetch(`${API_BASE}/products`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(productData),
+      });
+      if (res.ok) {
+        await fetchProducts();
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('Error adding product:', err);
+      return false;
+    }
+  };
+
+  const updateProduct = async (productId, productData) => {
+    try {
+      const res = await fetch(`${API_BASE}/products/${productId}`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify(productData),
+      });
+      if (res.ok) {
+        await fetchProducts();
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('Error updating product:', err);
+      return false;
+    }
+  };
+
+  const deleteProduct = async (productId) => {
+    try {
+      const res = await fetch(`${API_BASE}/products/${productId}`, {
+        method: 'DELETE',
+        headers: getHeaders(),
+      });
+      if (res.ok) {
+        await fetchProducts();
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('Error deleting product:', err);
+      return false;
+    }
+  };
+
+  // Category CRUD
+  const addCategory = async (categoryData) => {
+    try {
+      const res = await fetch(`${API_BASE}/categories`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(categoryData),
+      });
+      if (res.ok) {
+        await fetchCategories();
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('Error adding category:', err);
+      return false;
+    }
+  };
+
+  const deleteCategory = async (categoryId) => {
+    try {
+      const res = await fetch(`${API_BASE}/categories/${categoryId}`, {
+        method: 'DELETE',
+        headers: getHeaders(),
+      });
+      if (res.ok) {
+        await fetchCategories();
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('Error deleting category:', err);
+      return false;
+    }
+  };
+
+  // Manager CRUD (Superadmin only)
+  const addManager = async (managerData) => {
+    try {
+      const res = await fetch(`${API_BASE}/managers`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(managerData),
+      });
+      if (res.ok) {
+        await fetchAdminData();
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('Error adding manager:', err);
+      return false;
+    }
+  };
+
+  const deleteManager = async (managerId) => {
+    try {
+      const res = await fetch(`${API_BASE}/managers/${managerId}`, {
+        method: 'DELETE',
+        headers: getHeaders(),
+      });
+      if (res.ok) {
+        await fetchAdminData();
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('Error deleting manager:', err);
+      return false;
+    }
+  };
+
+  return (
+    <AppContext.Provider
+      value={{
+        activeRole,
+        loggedUser,
+        currentUser,
+        products,
+        categories,
+        cart,
+        likes,
+        orders,
+        managers,
+        users,
+        loading,
+        changeRole,
+        registerUser,
+        logoutUser,
+        addToCart,
+        updateCartQty,
+        removeFromCart,
+        checkout,
+        toggleLike,
+        addProduct,
+        updateProduct,
+        deleteProduct,
+        addCategory,
+        deleteCategory,
+        addManager,
+        deleteManager,
+        refreshAll
+      }}
+    >
+      {children}
+    </AppContext.Provider>
+  );
+};
+
+export const useApp = () => useContext(AppContext);
