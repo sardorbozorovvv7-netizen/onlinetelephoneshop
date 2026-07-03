@@ -2,7 +2,27 @@ import React, { createContext, useState, useEffect, useContext } from 'react';
 
 const AppContext = createContext();
 
-const API_BASE = 'https://backendrep-9gdr.onrender.com/api';
+const API_BASE = (import.meta.env?.VITE_API_URL || 'https://backendrep-9gdr.onrender.com/api').replace(/\/$/, '');
+
+// Fetch with retry — handles Render.com cold start delays (30-60s)
+const fetchWithRetry = async (url, options = {}, retries = 3, delay = 3000) => {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 15000); // 15s timeout per try
+      const res = await fetch(url, { ...options, signal: controller.signal });
+      clearTimeout(timeout);
+      return res;
+    } catch (err) {
+      if (i < retries - 1) {
+        console.warn(`[Fetch retry ${i + 1}/${retries}] ${url} — waiting ${delay}ms...`);
+        await new Promise(r => setTimeout(r, delay));
+      } else {
+        throw err;
+      }
+    }
+  }
+};
 
 export const AppProvider = ({ children }) => {
   const [activeRole, setActiveRole] = useState(() => {
@@ -60,8 +80,8 @@ export const AppProvider = ({ children }) => {
 
   const fetchProducts = async () => {
     try {
-      const res = await fetch(`${API_BASE}/products`);
-      if (res.ok) {
+      const res = await fetchWithRetry(`${API_BASE}/products`);
+      if (res && res.ok) {
         const data = await res.json();
         setProducts(data);
       }
@@ -72,8 +92,8 @@ export const AppProvider = ({ children }) => {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch(`${API_BASE}/categories`);
-      if (res.ok) {
+      const res = await fetchWithRetry(`${API_BASE}/categories`);
+      if (res && res.ok) {
         const data = await res.json();
         setCategories(data);
       }
@@ -147,6 +167,12 @@ export const AppProvider = ({ children }) => {
 
   const refreshAll = async () => {
     setLoading(true);
+    // Wake up Render backend first if it's sleeping
+    try {
+      await fetchWithRetry(`${API_BASE}/products`, {}, 5, 4000);
+    } catch (e) {
+      console.warn('Backend wake-up ping failed, proceeding anyway...');
+    }
     await Promise.all([
       fetchAuth(),
       fetchProducts(),

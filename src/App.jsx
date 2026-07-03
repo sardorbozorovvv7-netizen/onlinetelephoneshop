@@ -59,6 +59,9 @@ function MainAppContent() {
       <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', justifyContent: 'center', alignItems: 'center', background: '#f7ebd8', color: '#4b3420' }}>
         <div className="spinner" style={{ width: '50px', height: '50px', border: '5px solid rgba(75, 52, 32, 0.15)', borderTopColor: '#b56a2b', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
         <p style={{ marginTop: '1.5rem', fontSize: '1.2rem', letterSpacing: '1px', color: '#8b735d' }}>Tizim yuklanmoqda...</p>
+        <p style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: '#a89080', maxWidth: '280px', textAlign: 'center', lineHeight: '1.5' }}>
+          Server uyg'onmoqda, iltimos bir oz kuting (30 soniyagacha)...
+        </p>
         <style>{`
           @keyframes spin {
             to { transform: rotate(360deg); }
