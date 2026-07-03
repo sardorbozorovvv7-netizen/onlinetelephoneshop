@@ -1246,3 +1246,185 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* ==========================================
+   FIXED BOTTOM CART BAR
+   ========================================== */
+
+.fixed-cart-bar {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 150;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  background: linear-gradient(135deg, #b56a2b, #c79a4f);
+  color: white;
+  padding: 1rem 1.8rem;
+  border-radius: 999px;
+  min-width: 320px;
+  max-width: 500px;
+  cursor: pointer;
+  box-shadow: 0 8px 32px rgba(181, 106, 43, 0.45), 0 0 0 1px rgba(255,255,255,0.15) inset;
+  animation: slideUpBar 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: var(--transition-smooth);
+}
+
+.fixed-cart-bar:hover {
+  transform: translateX(-50%) translateY(-4px);
+  box-shadow: 0 14px 40px rgba(181, 106, 43, 0.55), 0 0 0 1px rgba(255,255,255,0.2) inset;
+}
+
+.fixed-cart-left {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.fixed-cart-badge {
+  background: white;
+  color: #b56a2b;
+  font-weight: 900;
+  font-size: 0.85rem;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.fixed-cart-label {
+  font-weight: 700;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.fixed-cart-title {
+  font-weight: 800;
+  font-size: 1rem;
+  letter-spacing: 0.3px;
+}
+
+.fixed-cart-price {
+  font-weight: 900;
+  font-size: 1.05rem;
+  background: rgba(255,255,255,0.2);
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.25);
+}
+
+@keyframes slideUpBar {
+  from { transform: translateX(-50%) translateY(100px); opacity: 0; }
+  to { transform: translateX(-50%) translateY(0); opacity: 1; }
+}
+
+/* ==========================================
+   LIGHTBOX
+   ========================================== */
+
+.lightbox-backdrop {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(3, 7, 18, 0.92);
+  backdrop-filter: blur(16px);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.25s ease-out;
+}
+
+.lightbox-content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.lightbox-img {
+  max-width: 85vw;
+  max-height: 75vh;
+  object-fit: contain;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(120,90,40,0.2);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.8);
+}
+
+.lightbox-close {
+  position: absolute;
+  top: -16px;
+  right: -16px;
+  background: linear-gradient(135deg, #b56a2b, #c79a4f);
+  border: none;
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 1.4rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(181,106,43,0.4);
+  transition: var(--transition-smooth);
+  z-index: 10;
+}
+
+.lightbox-close:hover {
+  transform: scale(1.1) rotate(90deg);
+}
+
+.lightbox-info {
+  background: rgba(255,250,240,0.95);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.5rem;
+  text-align: center;
+  color: var(--text-main);
+  max-width: 400px;
+  width: 100%;
+  border: 1px solid rgba(120,90,40,0.15);
+}
+
+/* Card image overlay (zoom hint) */
+.card-img-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-smooth);
+  opacity: 0;
+}
+
+.card-img-container:hover .card-img-overlay {
+  opacity: 1;
+  background: rgba(0,0,0,0.35);
+}
+
+/* ==========================================
+   RESPONSIVE UPDATES FOR NEW ELEMENTS
+   ========================================== */
+
+@media (max-width: 768px) {
+  .fixed-cart-bar {
+    bottom: 12px;
+    min-width: 90vw;
+    padding: 0.9rem 1.2rem;
+  }
+
+  .fixed-cart-title {
+    display: none;
+  }
+}
+

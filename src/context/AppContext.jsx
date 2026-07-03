@@ -24,6 +24,21 @@ const fetchWithRetry = async (url, options = {}, retries = 3, delay = 3000) => {
   }
 };
 
+// Load guest cart from localStorage
+const loadGuestCart = () => {
+  try {
+    const saved = localStorage.getItem('guestCart');
+    return saved ? JSON.parse(saved) : [];
+  } catch {
+    return [];
+  }
+};
+
+// Save guest cart to localStorage
+const saveGuestCart = (cart) => {
+  localStorage.setItem('guestCart', JSON.stringify(cart));
+};
+
 export const AppProvider = ({ children }) => {
   const [activeRole, setActiveRole] = useState(() => {
     return localStorage.getItem('activeRole') || 'user';
@@ -42,7 +57,7 @@ export const AppProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState(loadGuestCart); // Guest cart by default
   const [likes, setLikes] = useState([]); // List of product IDs liked by user
   const [orders, setOrders] = useState([]);
   const [managers, setManagers] = useState([]);
@@ -103,19 +118,20 @@ export const AppProvider = ({ children }) => {
   };
 
   const fetchCart = async () => {
-    if (activeRole === 'user' && !loggedUser) {
-      setCart([]);
-      return;
-    }
-    try {
-      const res = await fetch(`${API_BASE}/cart`, { headers: getHeaders() });
-      if (res.ok) {
-        const data = await res.json();
-        setCart(data);
+    // If logged in user, fetch from server
+    if (loggedUser && activeRole === 'user') {
+      try {
+        const res = await fetch(`${API_BASE}/cart`, { headers: getHeaders() });
+        if (res.ok) {
+          const data = await res.json();
+          setCart(data);
+          saveGuestCart(data);
+        }
+      } catch (err) {
+        console.error('Error fetching cart:', err);
       }
-    } catch (err) {
-      console.error('Error fetching cart:', err);
     }
+    // For guests, cart is already in local state (localStorage)
   };
 
   const fetchLikes = async () => {
@@ -220,36 +236,77 @@ export const AppProvider = ({ children }) => {
     setLoggedUser(null);
     setCurrentUser(null);
     setCart([]);
+    saveGuestCart([]);
     setLikes([]);
     setOrders([]);
   };
 
-  // Cart operations
+  // =============================================
+  // CART OPERATIONS (works for both guest & user)
+  // =============================================
+
   const addToCart = async (productId, quantity = 1) => {
-    if (!loggedUser && activeRole === 'user') {
-      return false; // Action requires login
-    }
-    try {
-      const res = await fetch(`${API_BASE}/cart`, {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify({ ProductId: productId, quantity }),
-      });
-      if (res.ok) {
-        await fetchCart();
-        return true;
+    // If logged in user, add to server
+    if (loggedUser && activeRole === 'user') {
+      try {
+        const res = await fetch(`${API_BASE}/cart`, {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify({ ProductId: productId, quantity }),
+        });
+        if (res.ok) {
+          await fetchCart();
+          return true;
+        }
+        return false;
+      } catch (err) {
+        console.error('Error adding to cart:', err);
+        return false;
       }
-      return false;
-    } catch (err) {
-      console.error('Error adding to cart:', err);
-      return false;
     }
+
+    // For guests — use local cart
+    const currentCart = [...cart];
+    const existingIndex = currentCart.findIndex(item => parseInt(item.ProductId, 10) === parseInt(productId, 10));
+    
+    if (existingIndex >= 0) {
+      currentCart[existingIndex] = {
+        ...currentCart[existingIndex],
+        quantity: currentCart[existingIndex].quantity + quantity
+      };
+    } else {
+      currentCart.push({
+        id: `guest-${productId}-${Date.now()}`,
+        ProductId: productId.toString(),
+        quantity,
+        updatedAt: new Date().toISOString(),
+      });
+    }
+    
+    setCart(currentCart);
+    saveGuestCart(currentCart);
+    return true;
   };
 
-  const updateCartQty = async (cartItemId, quantity) => {
+  const updateCartQty = async (cartItemId, quantity, isGuest = false) => {
     if (quantity <= 0) {
-      return removeFromCart(cartItemId);
+      return removeFromCart(cartItemId, isGuest);
     }
+
+    // Guest cart update
+    if (!loggedUser || isGuest) {
+      const updatedCart = cart.map(item => {
+        if ((item.id || item.ProductId) === cartItemId) {
+          return { ...item, quantity };
+        }
+        return item;
+      });
+      setCart(updatedCart);
+      saveGuestCart(updatedCart);
+      return;
+    }
+
+    // Logged in user
     try {
       const res = await fetch(`${API_BASE}/cart/${cartItemId}`, {
         method: 'PUT',
@@ -264,7 +321,16 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  const removeFromCart = async (cartItemId) => {
+  const removeFromCart = async (cartItemId, isGuest = false) => {
+    // Guest cart remove
+    if (!loggedUser || isGuest) {
+      const updatedCart = cart.filter(item => (item.id || item.ProductId) !== cartItemId);
+      setCart(updatedCart);
+      saveGuestCart(updatedCart);
+      return;
+    }
+
+    // Logged in user
     try {
       const res = await fetch(`${API_BASE}/cart/${cartItemId}`, {
         method: 'DELETE',
@@ -275,6 +341,33 @@ export const AppProvider = ({ children }) => {
       }
     } catch (err) {
       console.error('Error removing from cart:', err);
+    }
+  };
+
+  // Guest checkout — sends name, phone with order
+  const guestCheckout = async ({ name, surname, phone }) => {
+    try {
+      const cartItems = cart.map(item => ({
+        ProductId: item.ProductId,
+        quantity: item.quantity,
+      }));
+
+      const res = await fetch(`${API_BASE}/orders/guest-checkout`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, surname, phone, cartItems }),
+      });
+
+      if (res.ok) {
+        // Clear cart after successful order
+        setCart([]);
+        saveGuestCart([]);
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('Error guest checkout:', err);
+      return false;
     }
   };
 
@@ -463,6 +556,7 @@ export const AppProvider = ({ children }) => {
         updateCartQty,
         removeFromCart,
         checkout,
+        guestCheckout,
         toggleLike,
         addProduct,
         updateProduct,

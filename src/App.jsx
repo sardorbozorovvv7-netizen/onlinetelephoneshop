@@ -5,7 +5,7 @@ import ProductCard from './components/ProductCard';
 import CartDrawer from './components/CartDrawer';
 import ManagerDashboard from './components/ManagerDashboard';
 import SuperadminDashboard from './components/SuperadminDashboard';
-import { FaHeart, FaShoppingBag, FaTimes, FaUser, FaPhone, FaLock, FaTrash } from 'react-icons/fa';
+import { FaHeart, FaShoppingBag, FaTimes, FaUser, FaPhone, FaLock, FaTrash, FaShoppingCart } from 'react-icons/fa';
 
 function MainAppContent() {
   const { 
@@ -19,6 +19,7 @@ function MainAppContent() {
     changeRole,
     toggleLike,
     addToCart,
+    cart,
     loading 
   } = useApp();
 
@@ -145,6 +146,14 @@ function MainAppContent() {
     }
   };
 
+  // Total cart count for fixed bottom bar
+  const totalCartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
+  const totalCartPrice = cart.reduce((acc, item) => {
+    const prod = products.find(p => p.id === parseInt(item.ProductId, 10));
+    if (!prod) return acc;
+    return acc + parseFloat(prod.saleprice || prod.price || 0) * item.quantity;
+  }, 0);
+
   return (
     <div className="app-container">
       <Navbar
@@ -199,7 +208,7 @@ function MainAppContent() {
                 <p>Qidiruv shartlarini o'zgartirib ko'ring.</p>
               </div>
             ) : (
-              <div className="product-grid">
+              <div className="product-grid" style={{ paddingBottom: totalCartCount > 0 ? '90px' : '0' }}>
                 {filteredProducts.map(product => (
                   <ProductCard 
                     key={product.id} 
@@ -207,6 +216,18 @@ function MainAppContent() {
                     onPromptLogin={() => setLoginOpen(true)}
                   />
                 ))}
+              </div>
+            )}
+
+            {/* Fixed Bottom Cart Bar */}
+            {totalCartCount > 0 && (
+              <div className="fixed-cart-bar" onClick={() => setCartOpen(true)}>
+                <div className="fixed-cart-left">
+                  <div className="fixed-cart-badge">{totalCartCount}</div>
+                  <span className="fixed-cart-label">Savat</span>
+                </div>
+                <span className="fixed-cart-title">Savatni ko'rish</span>
+                <span className="fixed-cart-price">${totalCartPrice.toFixed(2)}</span>
               </div>
             )}
           </>
@@ -232,7 +253,7 @@ function MainAppContent() {
             </div>
             
             <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1.5rem', lineHeight: '1.4' }}>
-              Mahsulotlarni savatchaga solish, buyurtma berish va sevimlilarga qo'shish uchun ro'yxatdan o'teing.
+              Mahsulotlarni buyurtma berish, sevimlilar ro'yxatiga qo'shish uchun ro'yxatdan o'ting.
             </p>
 
             <form onSubmit={handleLoginSubmit}>
@@ -260,7 +281,7 @@ function MainAppContent() {
                     type="text"
                     className="form-input"
                     style={{ paddingLeft: '36px' }}
-                    placeholder="Masalan: Fullstack"
+                    placeholder="Masalan: Bozorov"
                     value={loginSurname}
                     onChange={(e) => setLoginSurname(e.target.value)}
                   />
@@ -363,7 +384,7 @@ function MainAppContent() {
                     <img src={prod.images} alt={prod.name} style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: 'var(--radius-sm)' }} />
                     <div style={{ flex: 1 }}>
                       <h4 style={{ fontSize: '0.95rem' }}>{prod.name}</h4>
-                      <span style={{ fontSize: '0.85rem', color: '#06b6d4' }}>${prod.saleprice || prod.price}</span>
+                      <span style={{ fontSize: '0.85rem', color: '#b56a2b' }}>${prod.saleprice || prod.price}</span>
                     </div>
                     <div style={{ display: 'flex', gap: '0.5rem' }}>
                       <button className="btn-primary" style={{ width: 'auto', padding: '0.5rem 0.8rem', fontSize: '0.85rem' }} onClick={() => {
@@ -391,7 +412,7 @@ function MainAppContent() {
           <div className="modal" style={{ width: '700px' }} onClick={(e) => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h3 className="modal-title" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <FaShoppingBag style={{ color: '#06b6d4' }} /> Xaridlar Tarixi (HistoryModel)
+                <FaShoppingBag style={{ color: '#b56a2b' }} /> Xaridlar Tarixi
               </h3>
               <button className="close-btn" onClick={() => setOrdersOpen(false)}><FaTimes /></button>
             </div>
