@@ -32,6 +32,14 @@ function MainAppContent() {
   const [wishlistOpen, setWishlistOpen] = useState(false);
   const [ordersOpen, setOrdersOpen] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
+
+  // Secret admin access — logo ga 5 marta bosish
+  const [logoClickCount, setLogoClickCount] = useState(0);
+  const [showAdminPanel, setShowAdminPanel] = useState(() => {
+    // URL hash orqali ham ochish mumkin: /#admin
+    return window.location.hash === '#admin';
+  });
+  const logoClickTimer = React.useRef(null);
   
   // Role password protection states
   const [passwordModalOpen, setPasswordModalOpen] = useState(false);
@@ -126,6 +134,7 @@ function MainAppContent() {
   const handleRoleChangePrompt = (role) => {
     if (role === 'user') {
       changeRole('user');
+      setShowAdminPanel(false);
     } else {
       setPendingRole(role);
       setPasswordModalOpen(true);
@@ -146,6 +155,21 @@ function MainAppContent() {
     }
   };
 
+  // Secret logo click — 5 marta bosish admin panelni ochadi
+  const handleLogoClick = () => {
+    const newCount = logoClickCount + 1;
+    setLogoClickCount(newCount);
+    clearTimeout(logoClickTimer.current);
+    if (newCount >= 5) {
+      setShowAdminPanel(prev => !prev);
+      setLogoClickCount(0);
+      // hash o'zgartirish
+      window.history.replaceState(null, '', showAdminPanel ? '/' : '/#admin');
+    } else {
+      logoClickTimer.current = setTimeout(() => setLogoClickCount(0), 2000);
+    }
+  };
+
   // Total cart count for fixed bottom bar
   const totalCartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
   const totalCartPrice = cart.reduce((acc, item) => {
@@ -162,6 +186,8 @@ function MainAppContent() {
         onOpenOrders={() => setOrdersOpen(true)}
         onOpenLogin={() => setLoginOpen(true)}
         onPromptRoleChange={handleRoleChangePrompt}
+        onLogoClick={handleLogoClick}
+        showAdminPanel={showAdminPanel}
         currentTab={currentTab}
         setCurrentTab={setCurrentTab}
         searchQuery={searchQuery}
