@@ -200,7 +200,7 @@ export default function SuperadminDashboard() {
             </div>
 
             {/* Charts Row */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginTop: '2rem' }}>
+            <div className="charts-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginTop: '2rem' }}>
               
               {/* Bar Chart */}
               <div style={{ background: 'rgba(255,250,240,0.7)', border: '1px solid rgba(120,90,40,0.12)', borderRadius: '16px', padding: '1.5rem' }}>
@@ -219,7 +219,7 @@ export default function SuperadminDashboard() {
                 <h4 style={{ fontWeight: 800, marginBottom: '1.5rem', fontSize: '0.95rem', color: '#4b3420' }}>
                   🍩 Mahsulot Holati
                 </h4>
-                <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
                   <DonutChart percent={activePercent} color="#10b981" label={`Faol: ${activeProducts} ta`} />
                   <DonutChart percent={products.length > 0 ? (inactiveProducts / products.length) * 100 : 0} color="#f43f5e" label={`Nofaol: ${inactiveProducts} ta`} />
                   <DonutChart percent={orders.length > 0 ? Math.min(100, (totalProductsSold / products.reduce((a,p) => a + parseInt(p.quantity || 0), 0)) * 100) : 0} color="#b56a2b" label={`Sotilish darajasi`} />
@@ -347,7 +347,7 @@ export default function SuperadminDashboard() {
           <>
             <h2 style={{ marginBottom: '2rem' }}>Savdo Tarixi</h2>
             <div className="table-container">
-              <table className="dashboard-table">
+              <table className="dashboard-table orders-table">
                 <thead>
                   <tr>
                     <th>ID</th>
@@ -394,6 +394,56 @@ export default function SuperadminDashboard() {
                   ))}
                 </tbody>
               </table>
+            </div>
+
+            <div className="order-card-list">
+              {enrichedOrders.length === 0 ? (
+                <p style={{ color: '#8b735d', textAlign: 'center', padding: '1.5rem 0' }}>Hali buyurtmalar yo'q</p>
+              ) : (
+                enrichedOrders.map(order => (
+                  <div key={`card-${order.id}`} className="order-card">
+                    <div className="order-card-row">
+                      <div className="order-card-item">
+                        <span className="order-card-label">Buyurtma ID</span>
+                        <span className="order-card-value">#{order.id}</span>
+                      </div>
+                      <div className="order-card-item">
+                        <span className="order-card-label">Mahsulot</span>
+                        <span className="order-card-value">{order.product?.name || `#${order.ProductId}`}</span>
+                      </div>
+                    </div>
+                    <div className="order-card-row">
+                      <div className="order-card-item">
+                        <span className="order-card-label">Mijoz</span>
+                        <span className="order-card-value">{order.user?.name || order.details?.guestName || `#${order.UserId}`}</span>
+                      </div>
+                      <div className="order-card-item">
+                        <span className="order-card-label">Telefon</span>
+                        <span className="order-card-value">{order.user?.phone || order.details?.guestPhone || '—'}</span>
+                      </div>
+                    </div>
+                    <div className="order-card-row">
+                      <div className="order-card-item">
+                        <span className="order-card-label">Miqdor</span>
+                        <span className="order-card-value">{order.quantity} ta</span>
+                      </div>
+                      <div className="order-card-item">
+                        <span className="order-card-label">Jami</span>
+                        <span className="order-card-value">${(parseFloat(order.details.pricePaid || 0) * order.quantity).toFixed(2)}</span>
+                      </div>
+                    </div>
+                    <div className="order-card-row">
+                      <div className="order-card-item">
+                        <span className="order-card-label">Sana</span>
+                        <span className="order-card-value">{new Date(order.createdAt || Date.now()).toLocaleString('uz-UZ')}</span>
+                      </div>
+                      <button className="action-btn edit" onClick={() => setViewOrderModal(order)} title="Ko'rish">
+                        <FaEye />
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </>
         )}

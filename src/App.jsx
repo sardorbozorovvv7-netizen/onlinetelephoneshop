@@ -229,12 +229,13 @@ function MainAppContent() {
 
             {/* Products grid */}
             {filteredProducts.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '3rem', color: '#9ca3af' }}>
-                <h3>Telefonlar topilmadi</h3>
+              <div style={{ textAlign: 'center', padding: '3rem', color: '#8b735d' }}>
+                <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>📱</div>
+                <h3 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800 }}>Telefonlar topilmadi</h3>
                 <p>Qidiruv shartlarini o'zgartirib ko'ring.</p>
               </div>
             ) : (
-              <div className="product-grid" style={{ paddingBottom: totalCartCount > 0 ? '90px' : '0' }}>
+              <div className="product-grid" style={{ paddingBottom: '100px' }}>
                 {filteredProducts.map(product => (
                   <ProductCard 
                     key={product.id} 
@@ -245,17 +246,42 @@ function MainAppContent() {
               </div>
             )}
 
-            {/* Fixed Bottom Cart Bar */}
+            {/* Fixed Bottom Cart Bar — savatda mahsulot bor bo'lganda */}
             {totalCartCount > 0 && (
               <div className="fixed-cart-bar" onClick={() => setCartOpen(true)}>
                 <div className="fixed-cart-left">
                   <div className="fixed-cart-badge">{totalCartCount}</div>
                   <span className="fixed-cart-label">Savat</span>
                 </div>
-                <span className="fixed-cart-title">Savatni ko'rish</span>
+                <span className="fixed-cart-title">Savatni ko'rish →</span>
                 <span className="fixed-cart-price">${totalCartPrice.toFixed(2)}</span>
               </div>
             )}
+
+            {/* Mobile Bottom Navigation — faqat mobil qurilmalar uchun */}
+            <div className="mobile-bottom-nav">
+              <button className="mobile-nav-btn" onClick={() => setWishlistOpen(true)}>
+                <FaHeart />
+                {likes.length > 0 && <span className="mobile-nav-badge">{likes.length}</span>}
+                <span>Sevimli</span>
+              </button>
+
+              <button className="mobile-nav-btn" onClick={() => { setSearchQuery(''); document.querySelector('.mobile-search-modal')?.classList.toggle('open'); }}>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
+                <span>Qidirish</span>
+              </button>
+
+              <button className="mobile-nav-btn cart-btn" onClick={() => setCartOpen(true)}>
+                <FaShoppingCart />
+                {totalCartCount > 0 && <span className="mobile-nav-badge">{totalCartCount}</span>}
+                <span>Savat</span>
+              </button>
+
+              <button className="mobile-nav-btn" onClick={loggedUser ? () => setOrdersOpen(true) : () => setLoginOpen(true)}>
+                {loggedUser ? <FaShoppingBag /> : <FaUser />}
+                <span>{loggedUser ? 'Buyurtma' : 'Kirish'}</span>
+              </button>
+            </div>
           </>
         )}
 
