@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { 
   FaUserPlus, FaTrash, FaChartPie, FaUserTie, FaUsers, FaHistory, 
-  FaShoppingBag, FaTrendingUp, FaMobileAlt, FaMoneyBillWave, FaEye
+  FaShoppingBag, FaMobileAlt, FaMoneyBillWave, FaEye, FaChartBar
 } from 'react-icons/fa';
 
 // Simple inline bar chart using pure CSS/SVG
@@ -143,7 +143,7 @@ export default function SuperadminDashboard() {
     { label: 'Menejerlar', value: `${managers.length} ta`, icon: <FaUserTie />, color: '#8b5cf6', glow: 'rgba(139,92,246,0.2)' },
     { label: 'Mijozlar', value: `${users.length} ta`, icon: <FaUsers />, color: '#06b6d4', glow: 'rgba(6,182,212,0.2)' },
     { label: "Jami Buyurtmalar", value: `${orders.length} ta`, icon: <FaShoppingBag />, color: '#f43f5e', glow: 'rgba(244,63,94,0.2)' },
-    { label: "Mahsulotlar", value: `${products.length} ta`, icon: <FaTrendingUp />, color: '#c79a4f', glow: 'rgba(199,154,79,0.2)' },
+    { label: "Mahsulotlar", value: `${products.length} ta`, icon: <FaChartBar />, color: '#c79a4f', glow: 'rgba(199,154,79,0.2)' },
   ];
 
   return (
