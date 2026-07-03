@@ -1186,8 +1186,59 @@ body {
     padding: 1.2rem;
   }
 
+  .dashboard-title-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .dashboard-table th,
+  .dashboard-table td {
+    padding: 0.9rem 0.8rem;
+  }
+
+  .db-img {
+    width: 40px;
+    height: 40px;
+  }
+
   .stats-grid {
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+  }
+
+  .dashboard-main {
+    padding: 1.2rem;
+  }
+
+  .dashboard-title-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .dashboard-table th,
+  .dashboard-table td {
+    padding: 0.9rem 0.8rem;
+  }
+
+  .db-img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .sidebar-tab {
+    padding: 0.65rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  .dashboard-sidebar {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 1rem;
   }
 
