@@ -1099,6 +1099,11 @@ body {
   to { transform: translateX(0); }
 }
 
+/* Hide mobile order cards on desktop */
+.order-card-list {
+  display: none;
+}
+
 @keyframes scaleUp {
   from { transform: scale(0.92); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
