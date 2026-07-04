@@ -1,48 +1,52 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
-  --bg-primary: #f7ebd8;
-  --bg-secondary: #efe1c6;
-  --bg-glass: rgba(255, 250, 240, 0.8);
-  --bg-glass-card: rgba(255, 250, 240, 0.9);
+  --bg-primary: #F7F8FA;
+  --bg-secondary: #E2E8F0;
+  --bg-glass: rgba(255, 255, 255, 0.7);
+  --bg-glass-card: rgba(255, 255, 255, 0.9);
   
-  --border-glass: rgba(120, 90, 40, 0.12);
-  --border-glass-hover: rgba(120, 90, 40, 0.2);
+  --border-glass: rgba(15, 23, 42, 0.08);
+  --border-glass-hover: rgba(15, 23, 42, 0.15);
   
-  --color-primary: #b56a2b;
-  --color-primary-glow: rgba(181, 106, 43, 0.18);
-  --color-secondary: #c79a4f;
-  --color-secondary-glow: rgba(199, 154, 79, 0.2);
-  --color-accent: #d08d4f;
+  --color-primary: #2563EB;
+  --color-primary-glow: rgba(37, 99, 235, 0.2);
+  --color-secondary: #0F172A;
+  --color-secondary-glow: rgba(15, 23, 42, 0.15);
+  --color-accent: #0F172A;
   
-  --text-main: #4b3420;
-  --text-muted: #8b735d;
-  --text-dark: #2f2317;
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
   
-  --gradient-neon: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-  --gradient-card: linear-gradient(180deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.2) 100%);
-  --gradient-dark: linear-gradient(135deg, #f9efe0 0%, #f2e2c7 100%);
+  --text-main: #0F172A;
+  --text-muted: #64748B;
+  --text-dark: #000000;
   
-  --shadow-neon: 0 0 20px var(--color-primary-glow), 0 0 40px rgba(181, 106, 43, 0.12);
-  --shadow-cyan: 0 0 20px var(--color-secondary-glow), 0 0 40px rgba(199, 154, 79, 0.12);
-  --shadow-card: 0 20px 40px rgba(90, 60, 20, 0.12);
+  --gradient-neon: linear-gradient(135deg, #2563EB, #3B82F6);
+  --gradient-card: linear-gradient(180deg, #FFFFFF 0%, rgba(255,255,255,0.95) 100%);
+  --gradient-dark: linear-gradient(135deg, #F7F8FA 0%, #FFFFFF 100%);
   
-  --radius-lg: 24px;
-  --radius-md: 16px;
-  --radius-sm: 10px;
+  --shadow-neon: 0 0 20px var(--color-primary-glow), 0 0 40px rgba(37, 99, 235, 0.1);
+  --shadow-cyan: 0 0 20px var(--color-secondary-glow), 0 0 40px rgba(15, 23, 42, 0.08);
+  --shadow-card: 0 20px 40px rgba(15, 23, 42, 0.06);
+  
+  --radius-lg: 28px;
+  --radius-md: 20px;
+  --radius-sm: 12px;
   --radius-full: 9999px;
   
-  --transition-smooth: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-  --transition-fast: all 0.2s ease-out;
+  --transition-smooth: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-fast: all 0.25s ease-out;
 }
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Plus Jakarta Sans', 'Outfit', sans-serif;
+  font-family: 'Inter', sans-serif;
   scrollbar-width: thin;
-  scrollbar-color: var(--color-primary) var(--bg-primary);
+  scrollbar-color: var(--text-muted) var(--bg-primary);
 }
 
 /* Custom Scrollbar */
@@ -68,47 +72,41 @@ body {
   position: relative;
 }
 
-/* Cream background for all pages */
+/* Clean background for all pages */
 .app-container {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   position: relative;
-  background: var(--gradient-dark);
+  background: var(--bg-primary);
   overflow: hidden;
 }
 
+/* Subtle modern background blur elements */
 .app-container::before {
   content: '';
   position: absolute;
-  top: -15%;
+  top: -20%;
   left: -10%;
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.5) 0%, transparent 60%);
+  width: 800px;
+  height: 800px;
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.05) 0%, transparent 60%);
   z-index: 0;
   pointer-events: none;
-  filter: blur(60px);
-  animation: floatSlowly 12s ease-in-out infinite alternate;
+  filter: blur(80px);
 }
 
 .app-container::after {
   content: '';
   position: absolute;
-  bottom: -15%;
+  bottom: -20%;
   right: -10%;
-  width: 700px;
-  height: 700px;
-  background: radial-gradient(circle, rgba(199, 154, 79, 0.16) 0%, transparent 60%);
+  width: 900px;
+  height: 900px;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.03) 0%, transparent 60%);
   z-index: 0;
   pointer-events: none;
-  filter: blur(80px);
-  animation: floatSlowly 18s ease-in-out infinite alternate-reverse;
-}
-
-@keyframes floatSlowly {
-  0% { transform: translateY(0) scale(1); }
-  100% { transform: translateY(50px) scale(1.1); }
+  filter: blur(100px);
 }
 
 /* Glassmorphic Navbar */

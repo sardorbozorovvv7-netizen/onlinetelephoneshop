@@ -118,6 +118,20 @@ export default function ManagerDashboard() {
     setImgError(false);
   };
 
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result;
+        setProdForm({ ...prodForm, images: base64String });
+        setPreviewImage(base64String);
+        setImgError(false);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const DEFAULT_IMG = 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500&auto=format&fit=crop&q=60';
 
   return (
@@ -384,16 +398,51 @@ export default function ManagerDashboard() {
               {/* Image URL with Preview */}
               <div className="form-group">
                 <label className="form-label">
-                  <FaImage style={{ marginRight: '6px', color: '#b56a2b' }} />
-                  Rasm havolasi (URL)
+                  <FaImage style={{ marginRight: '6px', color: 'var(--color-primary)' }} />
+                  Rasm havolasi yoki Kameradan rasmga olish
                 </label>
-                <input
-                  type="text"
-                  className="form-input"
-                  placeholder="https://example.com/phone.jpg"
-                  value={prodForm.images}
-                  onChange={(e) => handleImageUrlChange(e.target.value)}
-                />
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="https://example.com/phone.jpg"
+                    value={prodForm.images}
+                    onChange={(e) => handleImageUrlChange(e.target.value)}
+                  />
+                  
+                  <div style={{ position: 'relative', width: '100%' }}>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      id="cameraInput"
+                      style={{ display: 'none' }}
+                      onChange={handleFileUpload}
+                    />
+                    <label 
+                      htmlFor="cameraInput" 
+                      style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center', 
+                        gap: '0.5rem', 
+                        padding: '0.8rem', 
+                        background: 'var(--bg-secondary)', 
+                        border: '1px dashed var(--color-primary)', 
+                        borderRadius: 'var(--radius-md)',
+                        cursor: 'pointer',
+                        color: 'var(--text-main)',
+                        fontWeight: '600',
+                        transition: 'var(--transition-smooth)'
+                      }}
+                      onMouseOver={(e) => e.currentTarget.style.background = 'var(--bg-glass)'}
+                      onMouseOut={(e) => e.currentTarget.style.background = 'var(--bg-secondary)'}
+                    >
+                      <FaImage /> Kameradan rasmga olish yoki fayl yuklash
+                    </label>
+                  </div>
+                </div>
                 
                 {/* Image Preview */}
                 {previewImage && (
