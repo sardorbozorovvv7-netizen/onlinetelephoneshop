@@ -5,6 +5,12 @@ import ProductCard from './components/ProductCard';
 import CartDrawer from './components/CartDrawer';
 import ManagerDashboard from './components/ManagerDashboard';
 import SuperadminDashboard from './components/SuperadminDashboard';
+import HeroSection from './components/premium/HeroSection';
+import BrandSection from './components/premium/BrandSection';
+import CategoriesSection from './components/premium/CategoriesSection';
+import FlashSaleSection from './components/premium/FlashSaleSection';
+import WhyChooseUsSection from './components/premium/WhyChooseUsSection';
+import FooterSection from './components/premium/FooterSection';
 import { FaHeart, FaShoppingBag, FaTimes, FaUser, FaPhone, FaLock, FaTrash, FaShoppingCart } from 'react-icons/fa';
 
 function MainAppContent() {
@@ -198,34 +204,14 @@ function MainAppContent() {
         {/* SHOP VIEW (USER ROLE) */}
         {currentTab === 'shop' && (
           <>
-            <section className="hero">
-              <h1 className="hero-title">
-                Eng Sifatli Telefonlar <br />
-                <span className="hero-gradient">Hamyonbop Narxlarda</span>
-              </h1>
-              <p className="hero-desc">
-                Bizning do'konda eng so'nggi rusumdagi smartfonlarni original kafolati va qulay to'lov shartlari bilan sotib oling.
-              </p>
-
-              {/* Category tabs */}
-              <div className="category-tabs">
-                <button
-                  className={`category-tab ${selectedCategory === 'All' ? 'active' : ''}`}
-                  onClick={() => setSelectedCategory('All')}
-                >
-                  Barchasi
-                </button>
-                {categories.map(cat => (
-                  <button
-                    key={cat.id}
-                    className={`category-tab ${selectedCategory === cat.name ? 'active' : ''}`}
-                    onClick={() => setSelectedCategory(cat.name)}
-                  >
-                    {cat.name}
-                  </button>
-                ))}
-              </div>
-            </section>
+            <HeroSection />
+            <BrandSection />
+            <FlashSaleSection />
+            <CategoriesSection 
+              categories={categories} 
+              selectedCategory={selectedCategory} 
+              setSelectedCategory={setSelectedCategory} 
+            />
 
             {/* Products grid */}
             {filteredProducts.length === 0 ? (
@@ -245,6 +231,8 @@ function MainAppContent() {
                 ))}
               </div>
             )}
+
+            <WhyChooseUsSection />
 
             {/* Fixed Bottom Cart Bar — savatda mahsulot bor bo'lganda */}
             {totalCartCount > 0 && (
@@ -503,6 +491,8 @@ function MainAppContent() {
           </div>
         </div>
       )}
+
+      <FooterSection />
     </div>
   );
 }
