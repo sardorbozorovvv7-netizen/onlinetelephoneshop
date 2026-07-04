@@ -34,9 +34,24 @@ const loadGuestCart = () => {
   }
 };
 
+// Load guest likes from localStorage
+const loadGuestLikes = () => {
+  try {
+    const saved = localStorage.getItem('guestLikes');
+    return saved ? JSON.parse(saved) : [];
+  } catch {
+    return [];
+  }
+};
+
 // Save guest cart to localStorage
 const saveGuestCart = (cart) => {
   localStorage.setItem('guestCart', JSON.stringify(cart));
+};
+
+// Save guest likes to localStorage
+const saveGuestLikes = (likes) => {
+  localStorage.setItem('guestLikes', JSON.stringify(likes));
 };
 
 export const AppProvider = ({ children }) => {
@@ -58,7 +73,7 @@ export const AppProvider = ({ children }) => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [cart, setCart] = useState(loadGuestCart); // Guest cart by default
-  const [likes, setLikes] = useState([]); // List of product IDs liked by user
+  const [likes, setLikes] = useState(loadGuestLikes); // Guest likes by default IDs liked by user
   const [orders, setOrders] = useState([]);
   const [managers, setManagers] = useState([]);
   const [users, setUsers] = useState([]);
@@ -136,7 +151,7 @@ export const AppProvider = ({ children }) => {
 
   const fetchLikes = async () => {
     if (activeRole === 'user' && !loggedUser) {
-      setLikes([]);
+      setLikes(loadGuestLikes());
       return;
     }
     try {
@@ -391,7 +406,17 @@ export const AppProvider = ({ children }) => {
   // Likes operations
   const toggleLike = async (productId) => {
     if (!loggedUser && activeRole === 'user') {
-      return false; // Action requires login
+      const currentLikes = loadGuestLikes();
+      const id = parseInt(productId, 10);
+      let newLikes;
+      if (currentLikes.includes(id)) {
+        newLikes = currentLikes.filter(l => l !== id);
+      } else {
+        newLikes = [...currentLikes, id];
+      }
+      saveGuestLikes(newLikes);
+      setLikes(newLikes);
+      return true;
     }
     try {
       const res = await fetch(`${API_BASE}/products/${productId}/like`, {

@@ -266,11 +266,6 @@ function MainAppContent() {
                 <span>Sevimli</span>
               </button>
 
-              <button className="mobile-nav-btn" onClick={() => { setSearchQuery(''); document.querySelector('.mobile-search-modal')?.classList.toggle('open'); }}>
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
-                <span>Qidirish</span>
-              </button>
-
               <button className="mobile-nav-btn cart-btn" onClick={() => setCartOpen(true)}>
                 <FaShoppingCart />
                 {totalCartCount > 0 && <span className="mobile-nav-badge">{totalCartCount}</span>}

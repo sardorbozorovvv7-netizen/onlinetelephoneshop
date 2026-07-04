@@ -17,10 +17,6 @@ export default function ProductCard({ product, onPromptLogin }) {
 
   const handleLike = (e) => {
     e.stopPropagation();
-    if (!loggedUser) {
-      onPromptLogin();
-      return;
-    }
     toggleLike(product.id);
   };
 
